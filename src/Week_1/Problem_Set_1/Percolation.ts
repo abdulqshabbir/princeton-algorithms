@@ -1,12 +1,12 @@
 import { WeightedQuickUnion } from '../WeightedQuickUnion'
 
-interface Percolation {
+export interface Percolation {
     grid: WeightedQuickUnion,
     gridLength: number
     numOfOpenSites: number,
 }
 
-class Percolation {
+export class Percolation {
     constructor(n: number) {
         /*
             The 2D grid will be represented with a 1D array
