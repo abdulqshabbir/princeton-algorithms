@@ -3,7 +3,7 @@ interface StringNode {
     next: StringNode | null
 }
 
-interface StackOfStrings {
+export interface StackOfStrings {
     first: StringNode | null
 }
 
@@ -14,7 +14,7 @@ class StringNode {
     }
 }
 
-class StackOfStrings {
+export class StackOfStrings {
     constructor() {
         this.first = null
     }
@@ -50,5 +50,3 @@ class StackOfStrings {
         return poppedItem
     }
 }
-
-module.exports = StackOfStrings
