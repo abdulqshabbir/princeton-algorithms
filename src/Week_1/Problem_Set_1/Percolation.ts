@@ -14,8 +14,15 @@ export class Percolation {
             the entry represents that site's connected parent
 
             The indices from 0 to n^2 - 1 will represent the sites.
+
+            The second last index (n^2) will represent a 'virtual top site'
+            that all open sites in the top row are connected to.
+
+            The last index (n^2 + 1) will represent a 'virtual bottom site'
+            that all open sites in the bottom row are connected to. 
+
         */
-        this.grid = new WeightedQuickUnion(n ** 2)
+        this.grid = new WeightedQuickUnion(n ** 2 + 1)
         this.numOfOpenSites = 0
         this.gridLength = n
     }
@@ -48,15 +55,16 @@ export class Percolation {
     public open(row: number, col: number) {
         let current = this.getIndexOfSite(row, col)
 
-        // if invalid site, return
+        // validate index of current
         if (!this.isValidIndex(current)) throw new Error("Invalid Argument.")
 
-        // if site is not open, open it
+        // mark site as open
         if (!this.grid.open[current]) {
             this.grid.open[current] = true
             this.numOfOpenSites++
         }
 
+        // 
         if (this.grid.open[current]) {
             let neighbours = this.getOpenNeighbours(row, col)
             // For each neighbour that is open, connect current site to neighbouring site
