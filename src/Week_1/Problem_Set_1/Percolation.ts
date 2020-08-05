@@ -57,14 +57,16 @@ export class Percolation {
             this.numOfOpenSites++
         }
 
-        let neighbours = this.getOpenNeighbours(row, col)
+        if (this.grid.open[current]) {
+            let neighbours = this.getOpenNeighbours(row, col)
+            // For each neighbour that is open, connect current site to neighbouring site
+            neighbours.forEach(neighbour => {
+                if (this.grid.open[neighbour] === true) {
+                    this.grid.union(current, neighbour)
+                }
+            })
 
-        // For each neighbour that is open, connect current site to neighbouring site
-        neighbours.forEach(neighbour => {
-            if (this.grid.open[neighbour] === true) {
-                this.grid.union(current, neighbour)
-            }
-        })
+        }
     }
     public isOpen(row: number, col: number): boolean {
         let idx = this.getIndexOfSite(row, col)
