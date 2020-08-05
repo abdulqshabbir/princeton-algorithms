@@ -11,7 +11,7 @@ function binarySearch(arr: number[], key: number, low: number = 0, hi: number = 
     if (key === arr[mid]) {
         return mid
     }
-    if (low === mid || hi === mid) {
+    if (low === hi) {
         return null
     }
     if (key < arr[mid]) {
@@ -22,3 +22,5 @@ function binarySearch(arr: number[], key: number, low: number = 0, hi: number = 
     }
     return null
 }
+
+module.exports = binarySearch
