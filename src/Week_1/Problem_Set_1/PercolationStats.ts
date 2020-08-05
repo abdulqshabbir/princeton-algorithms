@@ -99,9 +99,3 @@ class PercolationStats {
         return this.meanPercolationThreshold + 1.96 * (stddev / Math.sqrt(this.trials))
     }
 }
-
-
-let p = new PercolationStats(20, 30)
-console.log('mean', p.mean())
-console.log('stddev', p.stddev())
-console.log('95% confidence interval', [p.confidenceLo(), p.confidenceHi()])
