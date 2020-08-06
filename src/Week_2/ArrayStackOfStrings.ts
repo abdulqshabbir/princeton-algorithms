@@ -6,60 +6,42 @@
     
     last represents index of the where the last element in array
     would go.
-
-    push: (item: string) => void
-        IF N === arrLength:
-            this.stack = resize(arr, N*2)
-
-        this.stack[N] = item
-        N++
-        
-    pop: () => item: string
-
-        IF N === Math.floor(arrLengh/4)
-            this.stack = resize(arr, N/4)
-
-        let popped = this.stack[N - 1]
-        this.stack[N - 1] 
-    resize: (oldArr, size) => newArr
-
-       let newArr = new Array(size)
-       
-        FOR each entry in oldArr
-            copy oldArr[i] into newArr[i]
-        
-        return newArr
-
 */
 
 export interface ArrayStackOfStrings {
-    stack: string[]
+    items: Array<string | undefined>
     N: number
 }
 
 export class ArrayStackOfStrings {
     constructor() {
-        this.stack = new Array(1)
+        this.items = new Array(1)
         this.N = 0
         // N represents the number of filled entries within the array
         // N will be used to index into the arry with push/pop operations
     }
 
     push(item: string) {
-        if (this.N === this.stack.length) {
-            let newSize = this.stack.length * 2
-            this.stack = this.resize(newSize)
+        if (this.N === this.items.length) {
+            let newSize = this.items.length * 2
+            this.items = this.resize(newSize)
         }
-        this.stack[this.N] = item
+        this.items[this.N] = item
         this.N++
     }
 
     resize(size: number) {
         let newStack = new Array(size)
-        let oldStack = this.stack
+        let oldStack = this.items
         for (let i = 0; i < oldStack.length; i++) {
             newStack[i] = oldStack[i]
         }
         return newStack
+    }
+
+    pop(): string | undefined {
+        let poppedItem = this.items[this.N - 1]
+        this.items[this.N - 1] = undefined
+        return poppedItem
     }
 }
