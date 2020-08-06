@@ -1,3 +1,7 @@
+/*
+    A linked list implementation of a stack of strings.
+*/
+
 interface StringNode {
     item: string,
     next: StringNode | null

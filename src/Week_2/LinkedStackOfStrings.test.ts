@@ -1,4 +1,4 @@
-import { StackOfStrings } from './StackOfStrings'
+import { StackOfStrings } from './LinkedStackOfStrings'
 
 test('First item on stack is initially null', () => {
     let stack = new StackOfStrings()
