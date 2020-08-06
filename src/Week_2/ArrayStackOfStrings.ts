@@ -4,8 +4,9 @@
     Initialize to a one-element array.
     Innitialize the value of N to be zero.
     
-    last represents index of the where the last element in array
-    would go.
+    N represents the number of items within the stack.
+    N -1 is the index of the last item.
+   
 */
 
 export interface ArrayStackOfStrings {
@@ -17,8 +18,6 @@ export class ArrayStackOfStrings {
     constructor() {
         this.items = new Array(1)
         this.N = 0
-        // N represents the number of filled entries within the array
-        // N will be used to index into the arry with push/pop operations
     }
 
     push(item: string) {
@@ -39,9 +38,22 @@ export class ArrayStackOfStrings {
         return newStack
     }
 
-    pop(): string | undefined {
-        let poppedItem = this.items[this.N - 1]
+    pop(): string | null {
+
+        if (this.N === 0) return null
+
+        let poppedItem = (this.items[this.N - 1]) as string
         this.items[this.N - 1] = undefined
+        this.N--
+
+        if (this.N === Math.floor(this.items.length / 4)) {
+            let newStack = new Array(this.N)
+            let oldStack = this.items
+            for (let i = 0; i < newStack.length; i++) {
+                newStack[i] = oldStack[i]
+            }
+            this.items = newStack
+        }
         return poppedItem
     }
 }
