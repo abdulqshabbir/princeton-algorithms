@@ -9,18 +9,18 @@
    
 */
 
-export interface ArrayStackOfStrings {
-    items: Array<string | undefined>
+export interface ArrayStack<T> {
+    items: Array<T>
     N: number
 }
 
-export class ArrayStackOfStrings {
+export class ArrayStack<T> {
     constructor() {
         this.items = new Array(1)
         this.N = 0
     }
 
-    push(item: string) {
+    push(item: T) {
         if (this.N === this.items.length) {
             let newSize = this.items.length * 2
             this.items = this.resize(newSize)
@@ -30,7 +30,7 @@ export class ArrayStackOfStrings {
     }
 
     resize(size: number) {
-        let newStack = new Array(size)
+        let newStack: T[] = new Array(size)
         let oldStack = this.items
         for (let i = 0; i < oldStack.length; i++) {
             newStack[i] = oldStack[i]
@@ -38,16 +38,15 @@ export class ArrayStackOfStrings {
         return newStack
     }
 
-    pop(): string | null {
+    pop(): T | null {
 
         if (this.N === 0) return null
 
-        let poppedItem = (this.items[this.N - 1]) as string
-        this.items[this.N - 1] = undefined
+        let poppedItem = this.items[this.N - 1]
         this.N--
 
         if (this.N === Math.floor(this.items.length / 4)) {
-            let newStack = new Array(this.N)
+            let newStack: T[] = new Array(this.N)
             let oldStack = this.items
             for (let i = 0; i < newStack.length; i++) {
                 newStack[i] = oldStack[i]

@@ -1,14 +1,14 @@
-import { ArrayStackOfStrings } from './ArrayStackOfStrings'
+import { ArrayStack } from './ArrayStack'
 
 test('Stack is initialized to be of size one', () => {
-    let stack = new ArrayStackOfStrings()
+    let stack = new ArrayStack()
     expect(stack.items.length).toBe(1)
     expect(stack.items[0]).toBe(undefined)
     expect(stack.items).toEqual([undefined])
 })
 
 test('Stack push operation works and array correctly resizes', () => {
-    let stack = new ArrayStackOfStrings()
+    let stack = new ArrayStack()
     stack.push('first item')
     stack.push('second item')
 
@@ -21,7 +21,7 @@ test('Stack push operation works and array correctly resizes', () => {
 })
 
 test('Stack pop operation works in correct order', () => {
-    let stack = new ArrayStackOfStrings()
+    let stack = new ArrayStack()
 
     stack.push('first item')
     stack.push('second item')
@@ -36,7 +36,7 @@ test('Stack pop operation works in correct order', () => {
 })
 
 test('Stack pop operation shrinks array to correct size', () => {
-    let stack = new ArrayStackOfStrings()
+    let stack = new ArrayStack()
 
     stack.push('first item')
     stack.push('second item')
@@ -45,4 +45,15 @@ test('Stack pop operation shrinks array to correct size', () => {
     stack.pop()
     stack.pop()
     expect(stack.items.length).toBe(1)
+})
+
+test('Stack also works for numbers type', () => {
+    let stack = new ArrayStack()
+
+    stack.push(1)
+    stack.push(2)
+    stack.push(3)
+    expect(stack.items.length).toBe(4)
+    expect(stack.items[0]).toBe(1)
+    expect(stack.pop()).toBe(3)
 })
