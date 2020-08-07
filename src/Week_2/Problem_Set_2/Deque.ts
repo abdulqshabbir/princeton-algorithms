@@ -4,11 +4,14 @@ export interface Deque<Item> {
     size: number
 }
 
-export interface DequeClass {
+export interface DequeMethods<Item> {
+    isEmpty: () => boolean
     getSize: () => number
+    addFirst: (item: Item) => void
+    removeFirst: () => Item | null
 }
 
-export class Deque<Item> implements DequeClass {
+export class Deque<Item> implements DequeMethods<Item>  {
     constructor() {
         this.first = null
         this.last = null
@@ -53,6 +56,29 @@ export class Deque<Item> implements DequeClass {
         newItem.prev = oldLast
         oldLast.next = newItem
         this.size++
+    }
+    public removeFirst() {
+        // if empty, return null
+        if (this.first === null) {
+            return null
+        }
+        if (this.size === 1) {
+            let removed = this.first
+            this.first = null
+            this.last = null
+            this.size--
+            return removed.value
+        }
+        if (this.first.next !== null) {
+            let oldFirst = this.first
+            let newFirst = this.first.next
+            this.first = newFirst
+            newFirst.prev = null
+            oldFirst.prev = null
+            oldFirst.next = null
+            return oldFirst.value
+        }
+        return null
     }
 }
 export interface Node<Item> {
