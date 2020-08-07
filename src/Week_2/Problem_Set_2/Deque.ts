@@ -9,6 +9,8 @@ export interface DequeMethods<Item> {
     getSize: () => number
     addFirst: (item: Item) => void
     removeFirst: () => Item | null
+    addLast: (item: Item) => void
+    removeLast: () => Item | null
 }
 
 export class Deque<Item> implements DequeMethods<Item>  {
@@ -28,33 +30,25 @@ export class Deque<Item> implements DequeMethods<Item>  {
         if (this.first === null) {
             this.first = newItem
             this.last = newItem
+        } else {
+            let rest = this.first
+            this.first = newItem
+            newItem.next = rest
+            rest.prev = newItem
         }
-        let rest = this.first // rest of deque
-        this.first = newItem
-        newItem.next = rest
-        rest.prev = newItem
         this.size++
     }
     public addLast(item: Item) {
-        /*
-            IF
-                deque empty, make first and last point to newItem
-            ELSE
-                save a reference to the oldLast of the list
-                make last point to newItem
-                make newItem.prev point to oldLast
-                make oldLast.next point to newItem
-        
-        */
         let newItem = new Node(item)
         if (this.first === null || this.last === null) {
             this.first = newItem
             this.last = newItem
+        } else {
+            let oldLast = this.last
+            this.last = newItem
+            newItem.prev = oldLast
+            oldLast.next = newItem
         }
-        let oldLast = this.last
-        this.last = newItem
-        newItem.prev = oldLast
-        oldLast.next = newItem
         this.size++
     }
     public removeFirst() {
@@ -62,23 +56,54 @@ export class Deque<Item> implements DequeMethods<Item>  {
         if (this.first === null) {
             return null
         }
+        // if deque is of size one, reset deque to be empty
+        let removed = this.first
         if (this.size === 1) {
-            let removed = this.first
             this.first = null
             this.last = null
-            this.size--
-            return removed.value
         }
-        if (this.first.next !== null) {
-            let oldFirst = this.first
-            let newFirst = this.first.next
+        // if deque has at least two elements, remove only the first element
+        else {
+            let newFirst = (this.first.next) as Node<Item>
             this.first = newFirst
             newFirst.prev = null
-            oldFirst.prev = null
-            oldFirst.next = null
-            return oldFirst.value
         }
-        return null
+        this.size--
+        return removed.value
+    }
+    public removeLast() {
+        // if empty, return null
+        if (this.first === null) {
+            return null
+        }
+        let removed = null
+        //if deque is of size one, reset deque to be empty
+        if (this.size === 1) {
+            removed = this.last
+            this.first = null
+            this.last = null
+        }
+        else if (this.size > 1 && this.last !== null && this.last.prev !== null) {
+            removed = this.last
+            let newLast = this.last.prev
+            newLast.next = null
+            this.last = newLast
+        }
+        this.size--
+        return (removed as Node<Item>).value
+    }
+    *[Symbol.iterator]() {
+        let current = this.first
+
+        if (current === null) return undefined
+
+        yield current.value
+
+        while (current.next !== null) {
+            current = current.next
+            yield current.value
+        }
+        return
     }
 }
 export interface Node<Item> {
