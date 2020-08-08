@@ -3,45 +3,45 @@
 */
 
 export interface RandomizedQueue<Item> {
-    lastFreeIndex: number
+    firstFreeIndex: number
     items: Array<Item | null>
 }
 
 export class RandomizedQueue<Item> {
     constructor() {
-        this.lastFreeIndex = 0
+        this.firstFreeIndex = 0
         this.items = new Array(1)
     }
     public isEmpty(): boolean {
-        return this.lastFreeIndex === 0
+        return this.firstFreeIndex === 0
     }
     public size(): number {
-        return this.lastFreeIndex
+        return this.firstFreeIndex
     }
     public enqueue(item: Item) {
         // adds item to the end of the queue
-        if (this.lastFreeIndex === this.items.length) {
+        if (this.firstFreeIndex === this.items.length) {
             this.resize(this.items.length * 2)
         }
-        this.items[this.lastFreeIndex] = item
-        this.lastFreeIndex++
+        this.items[this.firstFreeIndex] = item
+        this.firstFreeIndex++
     }
     public dequeue() {
-        if (this.lastFreeIndex === 0) return null
+        if (this.firstFreeIndex === 0) return null
 
-        let randomIdx = this.getRandomNumberInInterval(0, this.lastFreeIndex - 1)
+        let randomIdx = this.getRandomNumberInInterval(0, this.firstFreeIndex - 1)
         let randomItem = this.items[randomIdx]
         this.items[randomIdx] = null
-        this.swap(randomIdx, this.lastFreeIndex - 1)
-        this.lastFreeIndex--
+        this.swap(randomIdx, this.firstFreeIndex - 1)
+        this.firstFreeIndex--
 
-        if (this.lastFreeIndex === Math.floor(this.items.length / 4)) {
+        if (this.firstFreeIndex === Math.floor(this.items.length / 4)) {
             this.resize(Math.floor(this.items.length / 4))
         }
         return randomItem
     }
     public sample() {
-        let randomIdx = this.getRandomNumberInInterval(0, this.lastFreeIndex - 1)
+        let randomIdx = this.getRandomNumberInInterval(0, this.firstFreeIndex - 1)
         return this.items[randomIdx]
     }
     *[Symbol.iterator]() {
@@ -52,12 +52,12 @@ export class RandomizedQueue<Item> {
         */
         this.knuthShuffle()
 
-        for (let i = 0; i < this.lastFreeIndex; i++) {
+        for (let i = 0; i < this.firstFreeIndex; i++) {
             yield this.items[i]
         }
     }
     private knuthShuffle() {
-        let n = this.lastFreeIndex // number of items in array
+        let n = this.firstFreeIndex // number of items in array
         for (let lastIndex = n - 1; lastIndex > 0; lastIndex--) {
             let randomIdx = this.getRandomNumberInInterval(0, lastIndex)
             this.swap(lastIndex, randomIdx) // mutates this.items array in place
@@ -80,32 +80,4 @@ export class RandomizedQueue<Item> {
         }
         this.items = newItems
     }
-}
-
-const q = new RandomizedQueue<number>()
-q.enqueue(1)
-q.enqueue(2)
-q.enqueue(3)
-q.enqueue(4)
-q.enqueue(5)
-
-console.log('------')
-for (let item of q) {
-    console.log(item)
-}
-console.log('------')
-for (let item of q) {
-    console.log(item)
-}
-console.log('------')
-for (let item of q) {
-    console.log(item)
-}
-console.log('------')
-for (let item of q) {
-    console.log(item)
-}
-console.log('------')
-for (let item of q) {
-    console.log(item)
 }

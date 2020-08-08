@@ -1,46 +1,40 @@
-import { Node } from './Deque'
+import { RandomizedQueue } from './RandomizedQueue'
 
-/*
-    Randomized queue will be similar to a queue except that when an item is removed it is removed uniformly at random.
-*/
+let q = new RandomizedQueue<number>()
 
-export interface RandomizedQueue<Item> {
-    lastFreeIndex: number
-    items: Array<Item>
-}
+test("Queue is initialized as an empty array of length 1", () => {
+    expect(q.firstFreeIndex).toBe(0)
+    expect(q.items).toEqual([undefined])
+})
 
-export class RandomizedQueue<Item> {
-    constructor() {
-        this.lastFreeIndex = 0
-        this.items = new Array(1)
+test("Enqueue adds to the end of the randomized queue", () => {
+    q.enqueue(1)
+    expect(q.items[0]).toBe(1)
+    expect(q.firstFreeIndex).toBe(1)
+})
+
+test("Enqueuing resizes array", () => {
+    q.enqueue(2)
+    q.enqueue(3)
+    expect(q.items.length).toBe(4)
+})
+
+test("Dequeing resizes array", () => {
+    q.dequeue()
+    q.dequeue()
+    expect(q.items.length).toBe(1)
+})
+
+test("Sampling does not change length of queue", () => {
+    let sample = q.sample()
+    expect(q.items).toContain(sample)
+    expect(q.items.length).toBe(1)
+})
+
+test("Iterator iterates over array in random order", () => {
+    q.enqueue(4)
+    q.enqueue(10)
+    for (let item of q) {
+        expect(q.items).toContain(item)
     }
-    public enqueue(item: Item) {
-        // adds item to the end of the queue
-        if (this.lastFreeIndex === this.items.length) {
-            this.resize(this.items.length * 2)
-        }
-        this.items[this.lastFreeIndex] = item
-        this.lastFreeIndex++
-    }
-    public dequeue(): Item | null {
-        if (this.lastFreeIndex === 0) return null
-        let randomIdx = this.getRandomNumberInInterval(0, this.lastFreeIndex - 1)
-    }
-    public getRandomNumberInInterval(num1: number, num2: number) {
-        return num1 + Math.floor(Math.random() * (num1 - num2))
-    }
-    private resize(size: number) {
-
-        let newItems: Item[] = new Array(size)
-
-        for (let i = 0; i < this.items.length; i++) {
-            newItems[i] = this.items[i]
-        }
-
-        this.items = newItems
-    }
-}
-
-const q = new RandomizedQueue()
-
-console.log(q.getRandomNumberInInterval(0, 1))
+})
