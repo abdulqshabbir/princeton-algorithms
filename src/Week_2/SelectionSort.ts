@@ -29,7 +29,8 @@ function findMinIndex(indexA: number, indexB: number, arr: number[]) {
     }
     return minIdx
 }
-function swap(indexA: number, indexB: number, arr: number[]) {
+
+export function swap(indexA: number, indexB: number, arr: number[]) {
     let temp = arr[indexA]
     arr[indexA] = arr[indexB]
     arr[indexB] = temp
