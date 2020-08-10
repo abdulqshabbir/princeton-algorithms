@@ -33,3 +33,15 @@ export function merge(arr: number[], low: number, mid: number, hi: number) {
     }
     return arr
 }
+export function mergeSort(arr: number[], low: number = 0, hi: number = arr.length - 1) {
+    if (low < hi) {
+        // list is at least of size 2. Solve big problem by breaking it into halves
+        let mid = Math.floor((low + hi) / 2)
+
+        mergeSort(arr, low, mid)
+        mergeSort(arr, mid + 1, hi)
+        return merge(arr, low, mid, hi)
+    } else {
+        return arr
+    }
+}
