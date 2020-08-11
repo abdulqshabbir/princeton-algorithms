@@ -9,7 +9,7 @@ class Point {
         this.y = y
     }
     public compareTo(that: Point) {
-        // compareTo is a comparator that ranks points by their y-coordainte (and breaks ties with their x-coordinate)
+        // compareTo is a comparator that ranks points by their y-coordinate (and breaks ties with their x-coordinate)
         // the invoking point (x0, y0) is less than the argument point (x1, y1) if y0 < y1 or (y0 = y1) and x0 < x1
         if (this.y < that.y) {
             return -1
@@ -68,9 +68,34 @@ class BruteCollinearPoints {
     constructor(points: Point[]) {
         this.points = points
     }
-    public collinearPoints() {
+    public segments(): LineSegment[] {
         /*
-        examines 4 points at a time and checks whether they are on the same segment
-        iterate over list using 4 indices*/
+            examines 4 points at a time and checks whether they are collinear.  Use four indices: p, q, r and s to keep track of the array of points.
+        */
+        let result: LineSegment[] = []
+        for (let p = 0; p < this.points.length; p++) {
+            for (let q = 0; q < this.points.length; q++) {
+                for (let r = 0; r < this.points.length; r++) {
+                    for (let s = 0; s < this.points.length; s++) {
+                        // check if slopes p-q, p-r, and p-s are equal. If true, points are collinear and return line segment containing points.
+                        let pointP = this.points[p]
+                        let pointQ = this.points[q]
+                        let pointR = this.points[r]
+                        let pointS = this.points[s]
+
+                        let slopePQ = pointP.slopeTo(pointQ)
+                        let slopePR = pointP.slopeTo(pointR)
+                        let slopePS = pointP.slopeTo(pointS)
+
+                        if (slopePQ === slopePR && slopePQ === slopePS) {
+                            // slopes between four points are equal so points are collinear
+
+                        }
+
+                    }
+                }
+            }
+        }
+        return result
     }
 }
