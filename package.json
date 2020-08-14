@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "nodemon --exec ts-node src/Week_2/Sorting_Algorithms/MergeSort.ts",
+    "watch": "nodemon --exec ts-node src/Week_3/Problem_Set_2/CollinearPoints.ts",
     "test": "jest --watch"
   },
   "keywords": [],

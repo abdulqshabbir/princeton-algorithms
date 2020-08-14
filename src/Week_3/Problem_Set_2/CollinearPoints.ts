@@ -112,6 +112,9 @@ export class BruteCollinearPoints {
 
                             if (!this.isDuplicate(newLineSegment, result) && !this.isDegenerateSegment(newLineSegment)) {
                                 result.push(new LineSegment(endpointA, endpointB))
+                                // check the line segment added against the current list of line segments
+                                // if another line segment has the same slope and the endpoints span a smaller distance than push new line segment
+                                // otherwise, don't
                             }
                         }
                     }
