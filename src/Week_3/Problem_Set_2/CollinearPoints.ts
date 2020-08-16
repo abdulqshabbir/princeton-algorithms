@@ -1,24 +1,18 @@
 import { Point } from './Point'
+import { LineSegment } from './LineSegment'
+import fsNoPromises from 'fs'
 
-export interface LineSegment {
-    point1: Point,
-    point2: Point
-}
-
-export class LineSegment {
-    constructor(point1: Point, point2: Point) {
-        this.point1 = point1
-        this.point2 = point2
-    }
-}
+const fs = fsNoPromises.promises
 
 export interface BruteCollinearPoints {
     points: Point[]
+    lineSegments: LineSegment[]
 }
 
 export class BruteCollinearPoints {
     constructor(points: Point[]) {
         this.points = points
+        this.lineSegments = []
     }
     public segments(): LineSegment[] {
         /*
@@ -30,17 +24,13 @@ export class BruteCollinearPoints {
                 map over lineSegments to find if there is another line segment with the same slope but smaller distance
         */
 
-        //  p                           q     r    s
-        // [p1, p2, p3, p4, ..., pn-3, pn-2, pn-1, pn]
-
-        let lineSegments: LineSegment[] = []
         this.points.sort((a, b) => this.comparePoints(a, b))
 
         let N: number = this.points.length
-        for (let p = 0; p < N; p++) {
+        for (let p = 0; p < N - 4; p++) {
             for (let q = N - 3; q > p; q--) {
-                for (let r = N - 2; r > p; r--) {
-                    for (let s = N - 1; s > p; s--) {
+                for (let r = N - 2; r > q; r--) {
+                    for (let s = N - 1; s > r; s--) {
                         // check if slopes p-q, p-r, and p-s are equal. If true, points are collinear and return line segment containing points.
                         // get point at each index p, q, r and s
                         let pointP = this.points[p]
@@ -58,13 +48,14 @@ export class BruteCollinearPoints {
                                 // if slopes equal, then points are collinear
                                 let newLineSegment = new LineSegment(this.points[p], this.points[s])
                                 if (
-                                    !this.isDuplicate(newLineSegment, lineSegments) &&
+                                    !this.isDuplicate(newLineSegment, this.lineSegments) &&
                                     !this.isDegenerateSegment(newLineSegment) &&
-                                    !this.duplicateSlopes(newLineSegment, lineSegments)
+                                    !this.duplicateSlopes(newLineSegment, this.lineSegments) &&
+                                    !this.hasTwoRepeatingPoints(pointP, pointQ, pointR, pointS)
                                 ) {
                                     // if segment is not duplicate, not degenerate and slope of segment does not already exist,
                                     // then push line segment onto the lineSegments array
-                                    lineSegments.push(new LineSegment(this.points[p], this.points[s]))
+                                    this.lineSegments.push(new LineSegment(this.points[p], this.points[s]))
                                 }
                             }
                         }
@@ -72,7 +63,21 @@ export class BruteCollinearPoints {
                 }
             }
         }
-        return lineSegments
+        return this.lineSegments
+    }
+    public numberOfSegments() {
+        return this.lineSegments.length
+    }
+    private hasTwoRepeatingPoints(p: Point, q: Point, r: Point, s: Point) {
+        // p-q, p-r, p-s, q-r, q-s, r-s
+        if (p.x == q.x && p.y === q.y) return true
+        if (p.x === r.x && p.y === r.y) return true
+        if (p.x === s.x && p.y === s.y) return true
+        if (q.x === r.x && q.y === r.y) return true
+        if (q.x === s.x && q.y === s.y) return true
+        if (r.x === s.x && r.y === s.y) return true
+
+        return false
     }
     public comparePoints(a: Point, b: Point) {
         if (a.y < b.y) {
@@ -84,16 +89,16 @@ export class BruteCollinearPoints {
         }
     }
     private duplicateSlopes(newSegment: LineSegment, segments: LineSegment[]) {
-        let newSlope = newSegment.point1.slopeTo(newSegment.point2)
+        let newSlope = newSegment.pointA.slopeTo(newSegment.pointB)
 
         for (let segment of segments) {
-            let slope = segment.point1.slopeTo(segment.point2)
+            let slope = segment.pointA.slopeTo(segment.pointB)
             if (newSlope === slope) return true
         }
         return false
     }
     private isDegenerateSegment(segment: LineSegment) {
-        if (segment.point1.x === segment.point2.x && segment.point2.y === segment.point2.y) {
+        if (segment.pointA.x === segment.pointB.x && segment.pointA.y === segment.pointB.y) {
             return true
         }
         return false
@@ -107,30 +112,39 @@ export class BruteCollinearPoints {
         return false
     }
 
-    private areEquivalentSegments(segment1: LineSegment, segment2: LineSegment) {
+    private areEquivalentSegments(lineA: LineSegment, lineB: LineSegment) {
         // for two segments to be equal their endpoint need to be equal
-        if (this.areEquivalentPoints(segment1.point1, segment2.point1) &&
-            this.areEquivalentPoints(segment1.point2, segment2.point2)
+        if (this.equalPoints(lineA.pointA, lineB.pointA) &&
+            this.equalPoints(lineA.pointB, lineB.pointB)
         ) return true
-        if (this.areEquivalentPoints(segment1.point1, segment2.point2) &&
-            this.areEquivalentPoints(segment1.point2, segment2.point1)
+        if (this.equalPoints(lineA.pointA, lineB.pointB) &&
+            this.equalPoints(lineA.pointB, lineB.pointA)
         ) return true
 
         return false
     }
 
-    private areEquivalentPoints(point1: Point, point2: Point) {
-        if (point1.x === point2.x && point1.y === point2.y) {
-            return true
-        }
-        return false
+    private equalPoints(pointA: Point, pointB: Point) {
+        return pointA.x === pointB.x && pointA.y === pointB.y
     }
 }
-const pointB = new Point(2, 4)
-const pointD = new Point(4, 8)
-const pointA = new Point(1, 2)
-const pointE = new Point(5, 10)
-const pointC = new Point(3, 6)
+async function getPointsFromTextFile() {
+    let result: Point[] = []
+    const res = await fs.readFile('src/Week_3/Problem_Set_2/grid4x4.txt')
+    const points = res.toString().split('\n').splice(1)
+    for (let point of points) {
+        let parsedPoint =
+            point.split(' ')
+                .filter(p => p !== '')
+                .map(p => parseInt(p))
 
-const bruteCollinearPoints = new BruteCollinearPoints([pointA, pointB, pointC, pointD, pointE])
-console.log(bruteCollinearPoints.segments())
+        result.push(new Point(parsedPoint[0], parsedPoint[1]))
+    }
+    return result
+}
+
+getPointsFromTextFile().then(data => {
+    console.log(data)
+    let brute = new BruteCollinearPoints(data)
+    console.log(brute.segments())
+})

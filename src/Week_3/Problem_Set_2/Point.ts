@@ -19,15 +19,7 @@ export class Point {
             return 1
         }
     }
-    public comparePoints(a: Point, b: Point) {
-        if (a.y < b.y) {
-            return -1
-        } else if (a.y === b.y && a.x < b.x) {
-            return 0
-        } else {
-            return 1
-        }
-    }
+
     public slopeTo(that: Point) {
         // returns the slope between the invoking point and the argument point
 
