@@ -1,52 +1,4 @@
-export interface Point {
-    x: number,
-    y: number
-}
-
-export class Point {
-    constructor(x: number, y: number) {
-        this.x = x
-        this.y = y
-    }
-    public compareTo(that: Point) {
-        // compareTo is a comparator that ranks points by their y-coordinate (and breaks ties with their x-coordinate)
-        // the invoking point (x0, y0) is less than the argument point (x1, y1) if y0 < y1 or (y0 = y1) and x0 < x1
-        if (this.y < that.y) {
-            return -1
-        } else if (this.y === that.y && this.x < that.x) {
-            return 0
-        } else {
-            return 1
-        }
-    }
-    public slopeTo(that: Point) {
-        // returns the slope between the invoking point and the argument point
-
-        // if line segment is degenerate
-        if (this.x === that.x && this.y === that.y) return -Infinity
-
-        // if line segment is vertical
-        if (this.x === that.x) return +Infinity
-
-        // if line segment is horizontal
-        if (this.y === that.y) return +0
-
-        return ((that.y - this.y) / (that.x - this.x))
-    }
-    public slopeOrder(point1: Point, point2: Point) {
-        // slopeOrder is a comparator that compares two points by their slope
-        let slopeToPoint1 = this.slopeTo(point1)
-        let slopeToPoint2 = this.slopeTo(point2)
-
-        if (slopeToPoint1 < slopeToPoint2) {
-            return - 1
-        } else if (slopeToPoint1 === slopeToPoint2) {
-            return 0
-        } else {
-            return 1
-        }
-    }
-}
+import { Point } from './Point'
 
 export interface LineSegment {
     point1: Point,
@@ -71,12 +23,24 @@ export class BruteCollinearPoints {
     public segments(): LineSegment[] {
         /*
             examines 4 points at a time and checks whether they are collinear.  Use four indices: p, q, r and s to keep track of the array of points.
+
+            FOR each quadruplet of points
+                check that the slope between points is equal
+                if it is, find the endpoints of line segment
+                map over lineSegments to find if there is another line segment with the same slope but smaller distance
         */
-        let result: LineSegment[] = []
-        for (let p = 0; p < this.points.length; p++) {
-            for (let q = 1; q < this.points.length; q++) {
-                for (let r = 2; r < this.points.length; r++) {
-                    for (let s = 3; s < this.points.length; s++) {
+
+        //  p                           q     r    s
+        // [p1, p2, p3, p4, ..., pn-3, pn-2, pn-1, pn]
+
+        let lineSegments: LineSegment[] = []
+        this.points.sort((a, b) => this.comparePoints(a, b))
+
+        let N: number = this.points.length
+        for (let p = 0; p < N; p++) {
+            for (let q = N - 3; q > p; q--) {
+                for (let r = N - 2; r > p; r--) {
+                    for (let s = N - 1; s > p; s--) {
                         // check if slopes p-q, p-r, and p-s are equal. If true, points are collinear and return line segment containing points.
                         // get point at each index p, q, r and s
                         let pointP = this.points[p]
@@ -89,39 +53,44 @@ export class BruteCollinearPoints {
                         let slopePR = pointP.slopeTo(pointR)
                         let slopePS = pointP.slopeTo(pointS)
 
-                        // if slopes equal, then points are collinear
-                        if (slopePQ === slopePR && slopePQ === slopePS) {
-
-                            // find the endpoints of the line segment that passes through all four points
-                            let tentativeEndPoints: Point[] = []
-                            tentativeEndPoints.push(pointP)
-                            tentativeEndPoints.push(pointQ)
-                            tentativeEndPoints.push(pointR)
-                            tentativeEndPoints.push(pointS)
-
-                            // sort points by their y-coordinate (lower y-coordinates at lower indices) and break ties with x-coordinates
-                            tentativeEndPoints.sort((pointA: Point, pointB: Point) => {
-                                return pointA.compareTo(pointB)
-                            })
-
-                            console.log(tentativeEndPoints)
-
-                            let endpointA = tentativeEndPoints[0]
-                            let endpointB = tentativeEndPoints[tentativeEndPoints.length - 1]
-                            let newLineSegment = new LineSegment(endpointA, endpointB)
-
-                            if (!this.isDuplicate(newLineSegment, result) && !this.isDegenerateSegment(newLineSegment)) {
-                                result.push(new LineSegment(endpointA, endpointB))
-                                // check the line segment added against the current list of line segments
-                                // if another line segment has the same slope and the endpoints span a smaller distance than push new line segment
-                                // otherwise, don't
+                        if (slopePQ === slopePR) {
+                            if (slopePQ === slopePS) {
+                                // if slopes equal, then points are collinear
+                                let newLineSegment = new LineSegment(this.points[p], this.points[s])
+                                if (
+                                    !this.isDuplicate(newLineSegment, lineSegments) &&
+                                    !this.isDegenerateSegment(newLineSegment) &&
+                                    !this.duplicateSlopes(newLineSegment, lineSegments)
+                                ) {
+                                    // if segment is not duplicate, not degenerate and slope of segment does not already exist,
+                                    // then push line segment onto the lineSegments array
+                                    lineSegments.push(new LineSegment(this.points[p], this.points[s]))
+                                }
                             }
                         }
                     }
                 }
             }
         }
-        return result
+        return lineSegments
+    }
+    public comparePoints(a: Point, b: Point) {
+        if (a.y < b.y) {
+            return -1
+        } else if (a.y === b.y && a.x < b.x) {
+            return 0
+        } else {
+            return 1
+        }
+    }
+    private duplicateSlopes(newSegment: LineSegment, segments: LineSegment[]) {
+        let newSlope = newSegment.point1.slopeTo(newSegment.point2)
+
+        for (let segment of segments) {
+            let slope = segment.point1.slopeTo(segment.point2)
+            if (newSlope === slope) return true
+        }
+        return false
     }
     private isDegenerateSegment(segment: LineSegment) {
         if (segment.point1.x === segment.point2.x && segment.point2.y === segment.point2.y) {
@@ -157,12 +126,11 @@ export class BruteCollinearPoints {
         return false
     }
 }
-const pointA = new Point(1, 2)
 const pointB = new Point(2, 4)
-const pointC = new Point(3, 6)
 const pointD = new Point(4, 8)
+const pointA = new Point(1, 2)
 const pointE = new Point(5, 10)
-const pointF = new Point(5, 9)
+const pointC = new Point(3, 6)
 
 const bruteCollinearPoints = new BruteCollinearPoints([pointA, pointB, pointC, pointD, pointE])
 console.log(bruteCollinearPoints.segments())
