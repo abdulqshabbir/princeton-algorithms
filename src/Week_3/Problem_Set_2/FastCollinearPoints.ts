@@ -15,9 +15,18 @@ export class FastCollinearPoints {
         this.lineSegments = []
     }
     private sortBySlopes(a: Point, b: Point) {
-        if (a.slopeToQ < b.slopeToQ) {
+        if (a.slopeToO < b.slopeToO) {
             return -1
-        } else if (a.slopeToQ === b.slopeToQ) {
+        } else if (a.slopeToO === b.slopeToO) {
+            return 0
+        } else {
+            return 1
+        }
+    }
+    public comparePoints(a: Point, b: Point) {
+        if (a.y < b.y) {
+            return -1
+        } else if (a.y === b.y && a.x < b.x) {
             return 0
         } else {
             return 1
@@ -25,46 +34,55 @@ export class FastCollinearPoints {
     }
     public segments() {
         let N: number = this.points.length
-        let segments: Point[] = []
-        // let i be the index of the pth point
+        let segments: LineSegment[] = []
+
+        // let i be the index of the origin point
+        // We will find the slope form the origin point to every other point
         for (let i = 0; i < N; i++) {
-            let pointP = this.points[i]
-            // for each point P, find the slope to the qth point
-            // let j be the index of the qth point
+            let pointO = this.points[i] // pointO is the origin
             for (let j = 0; j < N; j++) {
-                let pointQ = this.points[j]
-                let slopePQ = pointP.slopeTo(pointQ)
-                this.points[j].slopeToQ = slopePQ
+                let pointP = this.points[j]
+                let slopeOP = pointO.slopeTo(pointP)
+                this.points[j].slopeToO = slopeOP
             }
+
             // sort points by slope so that collinear points become adjacent
-            this.points = this.points.sort(this.sortBySlopes)
+            let sortedPoints = this.points.sort(this.sortBySlopes).slice()
 
             // get segments from sorted points
-            let result = this.getLineSegments(this.points)
+            let result = this.getLineSegments(sortedPoints, i)
+
+            segments.push(...result)
         }
-
-
-
+        return segments
     }
-    private getLineSegments(points: Point[]) {
-        let i = 0 // index i will be used to index into the ith point
-        let j = 1 // index j will keep track of when we have consecutive equal slopes
-        let N = points.length
-        let result = []
-        debugger;
-        for (i; i < N - 1; i++) {
-            if (points[i].slopeToQ === points[i + 1].slopeToQ) {
-                j = j + 1
-                if (j > 3 && (points[i + 1].slopeToQ !== points[i + 2].slopeToQ)) {
-                    let collinearPoints = points.slice(i, i + j)
-                    let length = collinearPoints.length
-                    collinearPoints.sort((a, b) => a.compareTo(b))
-                    result.push(new LineSegment(collinearPoints[0], collinearPoints[length - 1]))
+    private getLineSegments(points: Point[], originIdx: number) {
+        let startIdx: number | null = null
+        let endIdx: number | null = null
+        let result: LineSegment[] = []
+
+        for (let i = 0; i < points.length - 2; i++) {
+            if (points[i].slopeToO === points[i + 1].slopeToO) {
+                if (startIdx === null && endIdx === null) {
+                    startIdx = i
+                    endIdx = i
+                } else if (endIdx !== null) {
+                    endIdx = endIdx + 1
                 }
             } else {
-                j = 1
+                if (startIdx !== null && endIdx !== null) {
+                    let collinearPoints = points.slice(startIdx, endIdx + 1)
+                    collinearPoints.sort(this.comparePoints)
+
+                    let pointA = collinearPoints[0]
+                    let pointB = collinearPoints[collinearPoints.length - 1]
+                    result.push(new LineSegment(pointA, pointB))
+                    startIdx = null
+                    endIdx = null
+                }
             }
         }
+        return result
     }
     public numberOfSegments() {
         return this.lineSegments.length

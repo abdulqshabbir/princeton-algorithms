@@ -1,7 +1,7 @@
 export interface Point {
     x: number,
     y: number,
-    slopeToQ: number
+    slopeToO: number
 }
 
 export class Point {
